@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tarefas Avançada</title>
+  <style>
+    :root {
+      --bg-color: #f8f9fa;
+      --text-color: #333;
+      --container-bg: white;
+      --item-bg: #f1f1f1;
+      --btn-bg: #28a745;
+      --btn-hover: #218838;
+      --remove-bg: #dc3545;
+      --remove-hover: #c82333;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #f5f5f5;
+      --container-bg: #1e1e1e;
+      --item-bg: #2a2a2a;
+      --btn-bg: #00b894;
+      --btn-hover: #019875;
+      --remove-bg: #d63031;
+      --remove-hover: #b71c1c;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: Arial, sans-serif;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      padding: 40px 10px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .container {
+      background-color: var(--container-bg);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .controls {
+      display: flex;
+      margin-bottom: 15px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px 0 0 5px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-add {
+      background-color: var(--btn-bg);
+      color: white;
+      border-radius: 0 5px 5px 0;
+    }
+
+    .btn-add:hover {
+      background-color: var(--btn-hover);
+    }
+
+    .btn-darkmode {
+      margin-top: 10px;
+      width: 100%;
+      background-color: #444;
+      color: white;
+      border-radius: 5px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background-color: var(--item-bg);
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .btn-remove {
+      background-color: var(--remove-bg);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .btn-remove:hover {
+      background-color: var(--remove-hover);
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <h1>Lista de Tarefas</h1>
+    <div class="controls">
+      <input type="text" id="novaTarefa" placeholder="Digite sua tarefa" />
+      <button class="btn-add" onclick="adicionarTarefa()">Adicionar</button>
+    </div>
+    <ul id="listaTarefas"></ul>
+    <button class="btn-darkmode" onclick="alternarTema()">🌗 Alternar tema</button>
+    <div class="footer">
+      <p>Total: <span id="total">0</span> | Concluídas: <span id="concluidas">0</span></p>
+    </div>
+  </div>
+
+  <script>
+    let listaTarefas = [];
+
+    function salvarTarefas() {
+      localStorage.setItem("tarefas", JSON.stringify(listaTarefas));
+    }
+
+    function carregarTarefas() {
+      const dados = localStorage.getItem("tarefas");
+      if (dados) {
+        listaTarefas = JSON.parse(dados);
+        renderizarTarefas();
+      }
+    }
+
+    function atualizarContadores() {
+      const total = listaTarefas.length;
+      const concluidas = listaTarefas.filter(t => t.feita).length;
+      document.getElementById("total").innerText = total;
+      document.getElementById("concluidas").innerText = concluidas;
+    }
+
+    function adicionarTarefa() {
+      const input = document.getElementById("novaTarefa");
+      const texto = input.value.trim();
+
+      if (texto === "") {
+        alert("Digite uma tarefa!");
+        return;
+      }
+
+      listaTarefas.push({ texto, feita: false });
+      salvarTarefas();
+      renderizarTarefas();
+      input.value = "";
+      input.focus();
+    }
+
+    function alternarTema() {
+      const body = document.body;
+      const temaAtual = body.getAttribute("data-theme");
+      body.setAttribute("data-theme", temaAtual === "light" ? "dark" : "light");
+    }
+
+    function renderizarTarefas() {
+      const ul = document.getElementById("listaTarefas");
+      ul.innerHTML = "";
+
+      listaTarefas.forEach((tarefa, index) => {
+        const li = document.createElement("li");
+        li.innerText = tarefa.texto;
+        if (tarefa.feita) li.classList.add("completed");
+
+        li.addEventListener("click", () => {
+          tarefa.feita = !tarefa.feita;
+          salvarTarefas();
+          renderizarTarefas();
+        });
+
+        li.addEventListener("dblclick", () => {
+          const novoTexto = prompt("Editar tarefa:", tarefa.texto);
+          if (novoTexto !== null) {
+            tarefa.texto = novoTexto.trim();
+            salvarTarefas();
+            renderizarTarefas();
+          }
+        });
+
+        const btnRemover = document.createElement("button");
+        btnRemover.innerText = "X";
+        btnRemover.className = "btn-remove";
+        btnRemover.addEventListener("click", (e) => {
+          e.stopPropagation();
+          listaTarefas.splice(index, 1);
+          salvarTarefas();
+          renderizarTarefas();
+        });
+
+        li.appendChild(btnRemover);
+        ul.appendChild(li);
+      });
+
+      atualizarContadores();
+    }
+
+    // Inicialização
+    carregarTarefas();
+  </script>
+</body>
+</html>
