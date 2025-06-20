@@ -1,0 +1,23 @@
+Lista de tarefas
+
+
+Uma aplicação web simples e funcional para gerenciamento de tarefas, desenvolvida com HTML, CSS e JavaScript puro.
+
+
+
+ Funcionalidades
+
+-  Adicionar novas tarefas
+-  Marcar tarefas como concluídas (clique no item) 
+-  Remover tarefas individualmente (botão x )
+-  Interface simples, leve e responsiva
+
+
+
+
+
+Tecnologias Utilizadas
+
+- HTML5
+- CSS3
+- JavaScript
